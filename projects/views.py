@@ -3,12 +3,12 @@ from django.http import HttpResponse
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    return render(request, 'index.html')
 def signup(request):
-    return render(request, 'authentication/signup.html')
+    return render(request, 'signup.html')
 
 def signin(request):
-    return render(request, 'authentication/signin.html')
+    return render(request, 'signin.html')
 
 def signout(request):
     pass  
