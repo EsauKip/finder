@@ -15,4 +15,7 @@ class Neighborhood(models.Model):
     def __str__(self):
         return self.name
     def delete_hood(self):
-        self.delete()    
+        self.delete() 
+
+    def save_hood(self):
+        self.save()       
