@@ -59,3 +59,7 @@ class Post(models.Model):
     def get_posts(cls):
         posts = Post.objects.all()
         return posts    
+    @classmethod
+    def search_post(cls,search_title):
+        posts = Post.objects.filter(title__icontains=search_title)
+        return posts
