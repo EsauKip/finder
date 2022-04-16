@@ -84,5 +84,12 @@ def join_hood(request,hood_id):
     else:
         messages.success(request,("You're already a member"))
     return redirect('home')
-
+#leave neighborhood
+@login_required(login_url='/accounts/login/')
+def leave_hood(request,hood_id):
+    current_user = request.user
+    hood = get_object_or_404(Neighborhood,id=hood_id)
+    membership = HoodMember(member = current_user, hood= hood)
+    membership.delete()
+    return redirect('dashboard')
 
