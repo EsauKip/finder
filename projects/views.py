@@ -1,9 +1,14 @@
+
+from django.http.response import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render,redirect
-from django.http import HttpResponseRedirect,JsonResponse
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import  authenticate,login,logout
+from django.contrib.auth.models import User
 from .forms import RegisterUserForm,newHoodForm, PostForm, BusinessForm,ServiceForm,ProfileForm
+
 from .models import Neighborhood, Post, Profile, HoodMember,Business,Service
+
 def index(request):
     return render(request, 'index.html')
 
@@ -138,3 +143,99 @@ def business(request):
     else:
         form = BusinessForm()
     return render(request, 'business.html',{'form':form,'businesses':businesses })
+#hospital
+def hospital(request):
+    current_user = request.user
+    hood_group = HoodMember.objects.filter(member=current_user).first()
+    hood = hood_group.hood
+    creator = hood.creator
+    hospitals = Service.objects.filter(type ='hospital',Neighborhood=hood)
+    if request.method == 'POST':
+        form = ServiceForm(request.POST)
+        if form.is_valid():
+            service = form.save(commit=False)
+            service.type = 'hospital'
+            service.Neighborhood = hood
+            service.save()
+            new_member = HoodMember(member=current_user,hood=hood)
+            new_member.save()
+            messages.success(request,('Hospital added!'))
+            return redirect('hospitals')
+    else:
+        form = ServiceForm()
+    return render(request, 'hospitals.html',{'form':form,'hospitals':hospitals, 'creator':creator })
+
+#school
+def school(request):
+    current_user = request.user
+    hood_group = HoodMember.objects.filter(member=current_user).first()
+    hood = hood_group.hood
+    creator = hood.creator
+    schools = Service.objects.filter(type ='school',Neighborhood=hood)
+    if request.method == 'POST':
+        form = ServiceForm(request.POST)
+        if form.is_valid():
+            service = form.save(commit=False)
+            service.type = 'school'
+            service.Neighborhood = hood
+            service.save()
+            new_member = HoodMember(member=current_user,hood=hood)
+            new_member.save()
+            messages.success(request,('School added!'))
+            return redirect('schools')
+    else:
+        form = ServiceForm()
+    return render(request, 'schools.html',{'form':form, 'schools':schools, 'creator':creator})
+
+
+
+# Register user
+def register_user(request):
+    if request.method == 'POST':
+        form = RegisterUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            email = form.cleaned_data['email']
+            user = authenticate(username = username,password=password)
+            login(request,user)
+            messages.success(request,('Registration successfull and logged in'))
+            return redirect('dashboard')
+           
+    else:
+        form = RegisterUserForm()
+        
+    return render(request,'registration/registration_form.html', {'form':form})
+
+
+
+# Page for profile
+def user_profile(request,username):
+    user = User.objects.filter(username=username).first()
+    if user == request.user:
+        return redirect('my_profile')
+    profile = Profile.objects.filter(user=user).first()
+    posts = Post.objects.filter(author=user)
+    return render(request, 'profiles/userprofile.html', {'profile':profile,'posts':posts})
+
+
+#logged in user profile
+@login_required(login_url='/accounts/login/')
+def my_profile(request):
+    user = request.user
+    profile = get_object_or_404(Profile,user=user)
+    if request ==' POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            profileform = form.save(commit=False)
+            profileform.user = user
+            profileform.save()
+            messages.success(request,('Update saved'))
+        return redirect('my_profile')
+    else:
+        posts = Post.objects.filter(author=user) 
+        form = ProfileForm() 
+        return render(request, 'profiles/profile.html', {'user': user,'posts':posts,'form':form})
+
