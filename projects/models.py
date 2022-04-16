@@ -54,3 +54,8 @@ class Post(models.Model):
     def edit_post(self,new_content):
         self.content = new_content
         self.save()     
+
+    @classmethod
+    def get_posts(cls):
+        posts = Post.objects.all()
+        return posts    
