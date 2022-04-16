@@ -74,3 +74,20 @@ class Business(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+    def delete(self):
+        self.delete()
+
+    def edit_name(self,name):
+        self.name = name
+    
+    @classmethod
+    def business_type(self,key_word):
+        businesses = Business.objects.filter(type=key_word)
+        return businesses
+    
+    @classmethod
+    def search_business(self,key_word):
+        businesses = Business.objects.filter(name__icontains=key_word)
+        return businesses
