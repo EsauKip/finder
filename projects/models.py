@@ -49,4 +49,8 @@ class Post(models.Model):
     def save_post(self):
         self.save()
     def delete_post(self):
-        self.delete()       
+        self.delete()      
+
+    def edit_post(self,new_content):
+        self.content = new_content
+        self.save()     
