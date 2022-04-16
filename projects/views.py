@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render,redirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegisterUserForm,newHoodForm, PostForm, BusinessForm,ServiceForm,ProfileForm
@@ -92,4 +92,28 @@ def leave_hood(request,hood_id):
     membership = HoodMember(member = current_user, hood= hood)
     membership.delete()
     return redirect('dashboard')
+#create post
+@login_required(login_url='/accounts/login/')
+def create_post(request):
+      if request.method == "POST":
+        current_user = request.user
+        hood_group = HoodMember.objects.filter(member=current_user).first()
+        hood = hood_group.hood
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = current_user
+            post.neighborhood = hood
+            post.save()
+            messages.success(request,('Posted!'))
+            message='posted successfully'
+            return redirect('home')
+    
+        else:
+            return JsonResponse({'error': True, 'errors': form.errors},status=400)
+   
 
+# Post and details
+def post(request,post_id):
+    post = get_object_or_404(Post,id=post_id)
+    return render(request,'post.html')
