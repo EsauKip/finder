@@ -29,3 +29,23 @@ class Neighborhood(models.Model):
     def search_hood(self,search_name):
         hoods = Neighborhood.objects.filter(location__icontains=search_name) 
         return hoods       
+
+class HoodMember(models.Model):
+        member = models.ForeignKey(User,on_delete=models.CASCADE)
+        hood = models.ForeignKey(Neighborhood,related_name='members',on_delete=models.CASCADE)
+        date_joined = models.DateTimeField(auto_now_add=True)
+        def __str__(self):
+            return'{} in {}'.format(self.member, self.hood)
+
+class Post(models.Model):
+    image = CloudinaryField('image', null=True)
+    content=models.TextField(max_length=100)
+    author=models.ForeignKey(User,related_name='posts',on_delete=models.CASCADE)
+    date_posted = models.DateTimeField(auto_now_add=True)
+    neighborhood = models.ForeignKey(Neighborhood,related_name='hoodposts',on_delete=models.CASCADE)
+    def __str__(self):
+        return self.content
+
+    def save_post(self):
+        self.save()
+           
