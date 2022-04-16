@@ -17,5 +17,10 @@ class Neighborhood(models.Model):
     def delete_hood(self):
         self.delete() 
 
-    def save_hood(self):
-        self.save()       
+    def save_hood(self,value):
+        self.name = value
+        self.save()
+    @classmethod
+    def all_hoods(self):
+        hoods =Neighborhood.objects.all()
+        return hoods    
