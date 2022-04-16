@@ -1,6 +1,8 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-
+from django.shortcuts import get_object_or_404, render,redirect
+from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import RegisterUserForm,newHoodForm, PostForm, BusinessForm,ServiceForm,ProfileForm
 from .models import Neighborhood, Post, Profile, HoodMember,Business,Service
 def index(request):
     return render(request, 'index.html')
@@ -24,4 +26,32 @@ def search_hood(request):
         message = "You haven't searched for any term"
         return render(request, 'search.html',{"message":message})
 
-
+# details
+@login_required(login_url='/accounts/login/')
+def home(request):
+    current_user = request.user
+    if request.method == "POST":
+        hood_group = HoodMember.objects.filter(member=current_user).first()
+        hood = hood_group.hood
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = current_user
+            post.neighborhood = hood
+            post.save()
+            messages.success(request,('Posted!'))
+            return redirect('home')
+    else:
+        hood_group = HoodMember.objects.filter(member=current_user).first()
+        if hood_group is not None:
+            hood = hood_group.hood
+            posts =Post.objects.filter(neighborhood =hood)
+            form = PostForm()
+            context = {
+                'hood':hood,
+                'posts':posts,
+                'form':form,
+            }
+            return render(request,'home.html', context)
+        else:
+            return redirect('dashboard')
