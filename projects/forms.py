@@ -26,7 +26,10 @@ class PostForm(ModelForm):
         model = Post
         fields = ['content','image']
         
-        
+class NeighborhoodForm(ModelForm):
+    class Meta:
+        model = Neighborhood
+        fields = ['name','location','profile_pic']        
 class BusinessForm(ModelForm):
     class Meta:
         model = Business

@@ -2,7 +2,9 @@
 
 
 from pathlib import Path
-
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -77,7 +79,11 @@ DATABASES = {
         'PASSWORD':'kiprono12',
     }
 }
-
+cloudinary.config( 
+    cloud_name = 'dvn9kvn89',
+    api_key = '691378926238384',
+    api_secret = 'D2ZHDzx4xJg82JyQvP1H6zfRjlc'
+    )
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -109,6 +115,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'index'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/

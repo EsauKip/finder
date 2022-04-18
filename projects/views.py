@@ -1,4 +1,3 @@
-
 from django.http.response import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render,redirect
 from django.contrib import messages
@@ -9,15 +8,25 @@ from .forms import RegisterUserForm,newHoodForm, PostForm, BusinessForm,ServiceF
 
 from .models import Neighborhood, Post, Profile, HoodMember,Business,Service
 
-def index(request):
-    return render(request, 'index.html')
 
-#show neighborhood
+
+# Landing page
+def index(request):
+    return render(request,'index.html')
+
+
+# Dashboard to show neighborhoods
 def dashboard(request):
-    hoods=Neighborhood.objects.all()
-    context={'hoods':hoods}
+    
+    hoods = Neighborhood.objects.all()
+    context = {
+        'hoods':hoods
+    }
+    
     return render(request,'dashboard.html',context)
-#search by location
+
+
+# search neighborhood by location   
 def search_hood(request):
     if 'search' in request.GET and request.GET["search"]:
         search_term = request.GET.get("search")
@@ -31,7 +40,7 @@ def search_hood(request):
         message = "You haven't searched for any term"
         return render(request, 'search.html',{"message":message})
 
-# details
+# Home posts and details
 @login_required(login_url='/accounts/login/')
 def home(request):
     current_user = request.user
@@ -60,7 +69,10 @@ def home(request):
             return render(request,'home.html', context)
         else:
             return redirect('dashboard')
-#new neighborhood
+    
+    
+
+# Creating new Neighborhood
 @login_required(login_url='/accounts/login/')
 def new_hood(request):
     if request.method == 'POST':
@@ -77,30 +89,32 @@ def new_hood(request):
     else:
         form = newHoodForm()
     return render(request,'new-hood.html', {'form':form})
-#join neighborhood
+
+
+# Join a neighborhood
+
 @login_required(login_url='/accounts/login/')
-def join_hood(request,hood_id):
-    hood = get_object_or_404(Neighborhood,id=hood_id)
-    member = HoodMember.objects.filter(Neighborhood =hood,member =request.user)
-    if member is not None:
-        new_member = HoodMember(member = request.user, hood= hood)
-        new_member.save()
-        messages.success(request,("You've joined the group"))
-    else:
-        messages.success(request,("You're already a member"))
+def join_hood(request, hood_id):
+    neighbourhood = get_object_or_404(Neighborhood, id=hood_id)
+    request.user.profile.neighbourhood = neighbourhood
+    request.user.profile.save()
     return redirect('home')
-#leave neighborhood
-@login_required(login_url='/accounts/login/')
 def leave_hood(request,hood_id):
     current_user = request.user
-    hood = get_object_or_404(Neighborhood,id=hood_id)
-    membership = HoodMember(member = current_user, hood= hood)
-    membership.delete()
+    hood = get_object_or_404(Neighborhood, id=hood_id)
+    hood_member = HoodMember.objects.filter(member=current_user).first()
+    hood_member.delete()
     return redirect('dashboard')
-#create post
+
+    # request.user.profile.save()
+    # return redirect('dashboard')
+   
+    
+    
+# Creating newpost
 @login_required(login_url='/accounts/login/')
 def create_post(request):
-      if request.method == "POST":
+    if request.method == "POST":
         current_user = request.user
         hood_group = HoodMember.objects.filter(member=current_user).first()
         hood = hood_group.hood
@@ -122,8 +136,8 @@ def create_post(request):
 def post(request,post_id):
     post = get_object_or_404(Post,id=post_id)
     return render(request,'post.html')
-# business
-@login_required(login_url='/accounts/login/')
+
+# businesses
 def business(request):
     current_user = request.user
     hood_group = HoodMember.objects.filter(member=current_user).first()
@@ -143,6 +157,21 @@ def business(request):
     else:
         form = BusinessForm()
     return render(request, 'business.html',{'form':form,'businesses':businesses })
+
+# Search business
+def search_business(request):
+    if 'search' in request.GET and request.GET["search"]:
+        search_term = request.GET.get("search")
+        print(search_term)
+        businesses = Business.search_business(search_term)
+        message = f"{search_term}"
+        
+
+        return render(request, 'search_business.html',{'businesses':businesses,'message':message})
+
+    else:
+        message = "You haven't searched for any term"
+        return render(request, 'search.html',{"message":message})
 #hospital
 def hospital(request):
     current_user = request.user
@@ -238,4 +267,3 @@ def my_profile(request):
         posts = Post.objects.filter(author=user) 
         form = ProfileForm() 
         return render(request, 'profiles/profile.html', {'user': user,'posts':posts,'form':form})
-
