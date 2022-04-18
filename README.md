@@ -39,7 +39,7 @@ The hood application is an application for creating different groups for members
 
 
 # Live link
-This project is hosted in heroku [Awwards App](https://the1hood.herokuapp.com/)
+This project is hosted in heroku [thehood-kip](https://thehood-kip.herokuapp.com/)
 
 # Contact details
-* Email: enock.kipsang@student.moringaschool.com
+* Email: kipronoesau28@gmail.com
